@@ -10,13 +10,17 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+using TestMod.CustomUnits;
+
 namespace TestMod{
     public class Moddy : MelonMod
     {
+
+
+
         const string export_folder = "C:\\Users\\Joe bingle\\Downloads\\RC modding\\exports\\";
 
         bool has_exported = false;
-        EntityBalancingScriptableObject cached_balancing_obj = null;
         public override void OnInitializeMelon()
         {
 
@@ -28,22 +32,40 @@ namespace TestMod{
 
 
             long count = -1;
-            // working reflection version
-            //if (cached_balancing_obj == null){
-            //    FieldInfo myField = typeof(EntityBalancingStore).GetField("_entityBalancingScriptableObject", BindingFlags.NonPublic | BindingFlags.Static);
-            //    if (myField != null)
-            //        cached_balancing_obj = (EntityBalancingScriptableObject)myField.GetValue(null);
-            //    else return;
-            //} else count = cached_balancing_obj.parameters.Count;
-
-            // not working publicized version 
             var test = EntityBalancingStore._entityBalancingScriptableObject;
-            if (test != null)
-                count = test.parameters.Count;
+            if (test != null) count = test.parameters.Count;
             
-
-
+            // show unit count, if failed then dont bother showing any of the other UI
             GUILayout.Label($"test moddy, cards: {count}");
+            if (test == null) return;
+
+            if (GUILayout.Button("add custom unit")){
+                test.parameters.Add(ExampleUnit.get_unit);
+            }
+
+            if (GUILayout.Button("unlock enemy units")){
+                List<EntityBalancingParameters> added_entities = new List<EntityBalancingParameters>();
+                foreach (var item in test.parameters){
+                    // if entity is a building spawner, 
+                    if ((item.roles & UnitRole.Factory)  != UnitRole.None 
+                    &&  (item.roles & UnitRole.Building) != UnitRole.None
+                    &&  (item.roles & UnitRole.PCXCard)  != UnitRole.None
+                    &&  item.isAllowedForAi){
+                        // then we duplicate the struct and make it a friendly card??
+                        EntityBalancingParameters converted_unit = item;
+
+                        converted_unit.roles &= ~UnitRole.PCXCard; // clear PCXCard role
+                        converted_unit.isAllowedForAi = false;
+                        converted_unit.isAllowedAsBlueprint = true;
+
+                        added_entities.Add(converted_unit);
+                    }
+                }
+                // then loop back and add all the new units in
+                foreach (var item in added_entities)
+                    test.parameters.Add(item);
+            }
+
             if (GUILayout.Button("Export units")){
                 has_exported = true;
 
@@ -73,6 +95,25 @@ namespace TestMod{
                 //}
 
             }
+
+            
+
+
+        //List<string> list = new List<string>();
+        //    foreach (EntityBalancingParameters entityBalancingParameters in EntityBalancingStore._entityBalancingScriptableObject.parameters)
+        //    {
+        //        if (!entityBalancingParameters.inactive 
+        //            && entityBalancingParameters.isAllowedAsBlueprint)
+        //        {
+        //            list.Add(entityBalancingParameters.entityId);
+        //            NullableString factoryForEntityId = entityBalancingParameters.factoryForEntityId;
+        //            if (factoryForEntityId.hasValue)
+        //            {
+        //                list.Add(factoryForEntityId.value);
+        //            }
+        //        }
+        //    }
+        
         }
     }
 }
