@@ -5,24 +5,20 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
-using UnityModManagerNet;
+using MelonLoader;
 
 namespace TestMod
 {
-    public class Main
+    public class Moddy : MelonMod
     {
-        public static string health;
-        public static string ammo;
 
-        static bool Load(UnityModManager.ModEntry modEntry)
+        public override void OnInitializeMelon()
         {
-            modEntry.OnGUI = OnGUI;
-            //modEntry.OnUpdate = OnUpdate;
-            return true;
+
         }
 
 
-        static void OnGUI(UnityModManager.ModEntry modEntry)
+        public override void OnGUI()
         {
 
             long count = -1;

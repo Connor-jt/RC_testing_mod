@@ -1,5 +1,0 @@
-{
-  "Id": "TestMod",
-  "Version": "0.0.1",
-  "EntryMethod": "TestMod.Main.Load"
-}
