@@ -16,19 +16,17 @@ using HarmonyLib;
 
 namespace TestMod{
     public class Moddy : MelonMod{
-
+        static List<string> entities_to_localize = new List<string>();
 
         [HarmonyPatch(typeof(EntityBalancingStore), "SetScriptableObject", new Type[] { typeof(EntityBalancingScriptableObject) })]
-        private static class Patch 
-        {
+        private static class UnitPatch {
             private static void Prefix(EntityBalancingScriptableObject entity){
-                Melon<Moddy>.Logger.Msg("hook reached!!");
                 // The code inside this method will run before 'SetScriptableObject()' is executed
-
                 // copied from the actual function, because we should always block if true
                 if (EntityBalancingStore._entityBalancingScriptableObject != null)
                     return;
 
+                Melon<Moddy>.Logger.Msg("hook reached!!");
                 // locate folder with all asset bundles
                 List<AssetBundle> loaded_bundles = new List<AssetBundle>();
                 string assets_folder = "C:\\Users\\Joe bingle\\Downloads\\RC modding\\mods";
@@ -58,12 +56,8 @@ namespace TestMod{
                             TextAsset skill_desc = (TextAsset)bundle.LoadAsset("Localization - SkillDescription");
                             // we may need resource re-routing for this (where we hijack the resource loading to accept asset bundles)
 
-                            // skip processing the localization files, just fill in blank according to the custom entity id's
-                            Loca.BlueprintNameDictionary["en-US"][curr_entity.entityId] = curr_entity.entityId;
-                            Loca.BlueprintDescriptionDictionary["en-US"][curr_entity.entityId] = curr_entity.entityId;
-                            Loca.SkillDescriptionDictionary["en-US"][curr_entity.entityId] = curr_entity.entityId;
-
-
+                            // since the localizations haven't actually loaded yet, just set aside the info for later
+                            entities_to_localize.Add(curr_entity.entityId);
 
                             Melon<Moddy>.Logger.Msg("bundle unit processing success: " + curr_entity.entityId);
                         }
@@ -74,13 +68,24 @@ namespace TestMod{
 
             }
 
-            //private static void Postfix(EntityBalancingScriptableObject entity)
-            //{
-            //    // The code inside this method will run after 'PrivateMethod' has executed
-            //}
         }
 
 
+        [HarmonyPatch(typeof(Loca), "Init")]
+        private static class LocalizationPatch{
+            private static void Postfix(){
+                Melon<Moddy>.Logger.Msg("updating localizations");
+
+                foreach (string item in entities_to_localize){
+                    Loca.BlueprintNameDictionary["en-US"][item] = item;
+                    Loca.BlueprintDescriptionDictionary["en-US"][item] = item;
+                    Loca.SkillDescriptionDictionary["en-US"][item] = item;
+
+                    Melon<Moddy>.Logger.Msg("bundle unit localized: " + item);
+                }
+
+            }
+        }
 
 
 
