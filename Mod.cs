@@ -13,6 +13,8 @@ using Newtonsoft.Json.Converters;
 using TestMod.CustomUnits;
 using System.Runtime.InteropServices.ComTypes;
 using HarmonyLib;
+using static MelonLoader.MelonLogger;
+using static Glossary;
 
 namespace TestMod{
     public class Moddy : MelonMod{
@@ -89,21 +91,22 @@ namespace TestMod{
         }
 
 
-        //[HarmonyPatch(typeof(Loca), "Init")]
-        //private static class LocalizationPatch{
-        //    private static void Postfix(){
-        //        Melon<Moddy>.Logger.Msg("updating localizations");
+        [HarmonyPatch(typeof(Loca), "Init")]
+        private static class LocalizationPatch{
+            private static void Postfix(){
+                Melon<Moddy>.Logger.Msg("updating localizations");
 
-        //        foreach (string item in entities_to_localize){
-        //            Loca.BlueprintNameDictionary["en-US"][item] = "placeholder" + item;
-        //            Loca.BlueprintDescriptionDictionary["en-US"][item] = "placeholder" + item;
-        //            //Loca.SkillDescriptionDictionary["en-US"][item] = item;
+                foreach (string item in entities_to_localize){
+                    string entry_key = item.Trim().ToLower();
+                    Loca.BlueprintNameDictionary["en-US"][entry_key] = "placeholder" + item;
+                    Loca.BlueprintDescriptionDictionary["en-US"][entry_key] = "placeholder" + item;
+                    //Loca.SkillDescriptionDictionary["en-US"][item] = item;
 
-        //            Melon<Moddy>.Logger.Msg("bundle unit localized: " + item);
-        //        }
+                    Melon<Moddy>.Logger.Msg("bundle unit localized: " + entry_key);
+                }
 
-        //    }
-        //}
+            }
+        }
 
 
         public static UnityEngine.Object load_from_bundle_or_resource(string path){
@@ -264,7 +267,31 @@ namespace TestMod{
 	        }
         }
 
-
+        
+        //[HarmonyPatch(typeof(Glossary), "SetupUnknownCardsCache")]
+        //private static class debug1Patch{
+        //    private static void Postfix(Glossary __instance){
+        //        Melon<Moddy>.Logger.Msg("logging  cardSlotTransforms: " + __instance.cardSlotTransforms.Count);
+        //        Melon<Moddy>.Logger.Msg("logging  Infos.Starters: " + __instance._filteredCardInfos[Filter.Starters].Count);
+        //        Melon<Moddy>.Logger.Msg("logging  Infos.Blueprints: " + __instance._filteredCardInfos[Filter.Blueprints].Count);
+        //        Melon<Moddy>.Logger.Msg("logging  Infos.Ai: " + __instance._filteredCardInfos[Filter.Ai].Count);
+        //        Melon<Moddy>.Logger.Msg("logging  page: " + __instance._currentPage);
+        //        Melon<Moddy>.Logger.Msg("logging  _unknownCardsCache: " + __instance._unknownCardsCache.Count);
+        //        Melon<Moddy>.Logger.Msg("logging  _unknownUpgradesCache: " + __instance._unknownUpgradesCache.Count);
+        //    }
+        //}
+        //[HarmonyPatch(typeof(Glossary), "UpdateCardView")]
+        //private static class debug2Patch{
+        //    private static void Prefix(Glossary __instance){
+        //        Melon<Moddy>.Logger.Msg("logging  cardSlotTransforms: " + __instance.cardSlotTransforms.Count);
+        //        Melon<Moddy>.Logger.Msg("logging  Infos.Starters: " + __instance._filteredCardInfos[Filter.Starters].Count);
+        //        Melon<Moddy>.Logger.Msg("logging  Infos.Blueprints: " + __instance._filteredCardInfos[Filter.Blueprints].Count);
+        //        Melon<Moddy>.Logger.Msg("logging  Infos.Ai: " + __instance._filteredCardInfos[Filter.Ai].Count);
+        //        Melon<Moddy>.Logger.Msg("logging  page: " + __instance._currentPage);
+        //        Melon<Moddy>.Logger.Msg("logging  _unknownCardsCache: " + __instance._unknownCardsCache.Count);
+        //        Melon<Moddy>.Logger.Msg("logging  _unknownUpgradesCache: " + __instance._unknownUpgradesCache.Count);
+        //    }
+        //}
 
         //const string export_folder = "C:\\Users\\Joe bingle\\Downloads\\RC modding\\exports\\";
         //bool has_exported = false;
