@@ -104,7 +104,7 @@ namespace TestMod{
                 }
                 else
                 {
-                    Melon<Moddy>.Logger.Msg("bundle not found: " + asset_bundle);
+                    Melon<Moddy>.Logger.Msg("CRITICAL FAILURE!!!! bundle not found: " + asset_bundle);
                     return null;
                 }
 
@@ -114,7 +114,7 @@ namespace TestMod{
 
         [HarmonyPatch(typeof(EntityFactory), "InstantiateEntity", new Type[] { typeof(string), typeof(Vector3), typeof(EntityController), typeof(string), typeof(string), typeof(Transform), typeof(UnitRole), typeof(bool) })]
         private static class EntityFactoryPatch1{
-            public static bool Prefix(ref EntityController __result, string entityId, Vector3 position, EntityController originEntity, string tag = "", string name = "", Transform parentTransform = null, UnitRole additionalRoles = UnitRole.None, bool hasBeenCalledFromAbove = false){
+            public static bool Prefix(ref EntityController __result, string entityId, Vector3 position, EntityController originEntity, string tag, string name, Transform parentTransform, UnitRole additionalRoles, bool hasBeenCalledFromAbove){
 
                 Melon<Moddy>.Logger.Msg("entity instantiation hook: " + entityId);
 
@@ -132,8 +132,10 @@ namespace TestMod{
                     component.ReplaceMaterial(EntityFactory.PlayerMaterial);
                     component.SetHealthBarColor(GameBalancingStore.PlayerHealthBarColor, GameBalancingStore.PlayerHealthBarBatteredColor);
                     if (Game.CardUpgrades.TryGetValue(entityId, out var value))
+                    {
                         foreach (string item in value)
                             component.AddUpgrade(item);
+                    }
 
                 } else if (Tags.IsAi(tag)){
                     component.ReplaceMaterial(component.IsBuilding ? EntityFactory.AiBuildingMaterial : EntityFactory.AiMaterial);
@@ -144,13 +146,13 @@ namespace TestMod{
                 component.OnHasBeenInstantiated(hasBeenCalledFromAbove);
                 __result = component;
 
-                return true;
+                return false;
             }
         }
 
         [HarmonyPatch(typeof(EntityFactory), "CreateBuildingPlacementGhost", new Type[] { typeof(string), typeof(bool) })]
         private static class EntityFactoryPatch2{
-            public static bool Prefix(ref GameObject __result, string entityId, bool returnInactive = false){
+            public static bool Prefix(ref GameObject __result, string entityId, bool returnInactive){
                 Melon<Moddy>.Logger.Msg("ghost building placement hook: " + entityId);
 
                 GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(load_from_bundle_or_resource(EntityBalancingStore.PrefabLocation(entityId)));
@@ -198,7 +200,7 @@ namespace TestMod{
                     gameObject.SetActive(value: true);
                 }
                 __result = gameObject;
-                return true;
+                return false;
             }
         }
 
@@ -212,7 +214,7 @@ namespace TestMod{
 		        if (@object == null){
 			        Logger.Warn("Cannot find prefab (" + text + ") for entityId: " + entityId);
 			        __result = null;
-                    return true;
+                    return false;
 		        }
 		        GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(@object, parentTransform);
 		        gameObject.SetLayerRecursively(22, 24);
@@ -242,7 +244,7 @@ namespace TestMod{
 		        if ((bool)transform4) UnityEngine.Object.Destroy(transform4.gameObject);
 
 			    __result = gameObject;
-                return true;
+                return false;
 	        }
         }
 
