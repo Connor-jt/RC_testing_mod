@@ -303,16 +303,22 @@ namespace TestMod{
         //{
         //}
         public override void OnGUI(){
-            var test = EntityBalancingStore._entityBalancingScriptableObject;
-            if (test == null) GUILayout.Label($"test moddy NOT LOADED YET??");
+            var entitybank = EntityBalancingStore._entityBalancingScriptableObject;
+            if (entitybank == null) GUILayout.Label("test moddy: no entity bank??");
+
+            var relicbank = RelicBalancingStore._relicBalancingScriptableObject;
+            if (relicbank == null) GUILayout.Label("test moddy: no relic bank??");
+
+            var upgradebank = UpgradeBalancingStore._upgradeBalancingScriptableObject;
+            if (upgradebank == null) GUILayout.Label("test moddy: no upgrade bank??");
             
             // show unit count
-            GUILayout.Label($"test moddy, cards: {test.parameters.Count}");
+            GUILayout.Label($"test moddy, cards: {entitybank.parameters.Count}");
 
 
             if (GUILayout.Button("unlock enemy units")){
                 List<EntityBalancingParameters> added_entities = new List<EntityBalancingParameters>();
-                foreach (var item in test.parameters){
+                foreach (var item in entitybank.parameters){
                     // if entity is a building spawner, 
                     if ((item.roles & UnitRole.Factory)  != UnitRole.None 
                     &&  (item.roles & UnitRole.Building) != UnitRole.None
@@ -330,7 +336,7 @@ namespace TestMod{
                 }
                 // then loop back and add all the new units in
                 foreach (var item in added_entities)
-                    test.parameters.Add(item);
+                    entitybank.parameters.Add(item);
             }
 
             if (GUILayout.Button("Export unit json")){
@@ -347,7 +353,7 @@ namespace TestMod{
                     //using (FileStream fs = File.Create(export_folder + "units.txt")){
                     int index = 0;
                     sw.Write("{\n");
-                    foreach (var item in test.parameters){
+                    foreach (var item in entitybank.parameters){
                         if (index > 0) sw.Write(",\n");
                         sw.Write("\"" + index + "\": ");
                         //string serialized_unit = Newtonsoft.Json.JsonConvert.SerializeObject(item);
@@ -365,38 +371,45 @@ namespace TestMod{
             
             if (GUILayout.Button("Export ID lists")){
                 // export entity names and descriptions
-                using (StreamWriter writer = new StreamWriter(export_folder + "entity_name.txt")){
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_name.txt"))
                     foreach (var entry in Loca.BlueprintNameDictionary["en-US"])
-                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
-                }
-                using (StreamWriter writer = new StreamWriter(export_folder + "entity_desc.txt")){
+                        writer.Write(entry.Key + "\t" + entry.Value + "\t");
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_desc.txt"))
                     foreach (var entry in Loca.BlueprintDescriptionDictionary["en-US"])
-                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
-                }
-                // export relic names and descriptions
-                using (StreamWriter writer = new StreamWriter(export_folder + "relic_name.txt")){
-                    foreach (var entry in Loca.RelicNameDictionary["en-US"])
-                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
-                }
-                using (StreamWriter writer = new StreamWriter(export_folder + "relic_desc.txt")){
-                    foreach (var entry in Loca.RelicDescriptionDictionary["en-US"])
-                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
-                }
-                // export upgrade names and descriptions
-                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_name.txt")){
-                    foreach (var entry in Loca.UpgradeNameDictionary["en-US"])
-                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
-                }
-                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_desc.txt")){
-                    foreach (var entry in Loca.UpgradeDescriptionDictionary["en-US"])
-                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
-                }
+                        writer.Write(entry.Key + "\t" + entry.Value + "\t");
                 
-                using (StreamWriter writer = new StreamWriter(export_folder + "entity_roles.txt")){
-                    foreach (var item in test.parameters){
-                        writer.Write(item.entityId.ToLower() + "\t" + (int)item.roles + "\0");
-                    }
-                }
+                // export relic names and descriptions
+                using (StreamWriter writer = new StreamWriter(export_folder + "relic_name.txt"))
+                    foreach (var entry in Loca.RelicNameDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\t");
+                using (StreamWriter writer = new StreamWriter(export_folder + "relic_desc.txt"))
+                    foreach (var entry in Loca.RelicDescriptionDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\t");
+                
+                // export upgrade names and descriptions
+                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_name.txt"))
+                    foreach (var entry in Loca.UpgradeNameDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\t");
+                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_desc.txt"))
+                    foreach (var entry in Loca.UpgradeDescriptionDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\t");
+                
+                // export entity roles
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_roles.txt"))
+                    foreach (var item in entitybank.parameters)
+                        writer.Write(item.entityId.ToLower() + "\t" + (int)item.roles + "\t");
+                
+                // export all non-lowercase IDs
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_IDs.txt"))
+                    foreach (var item in entitybank.parameters)
+                        writer.Write(item.entityId +"\t");
+                using (StreamWriter writer = new StreamWriter(export_folder + "relic_IDs.txt"))
+                    foreach (var item in relicbank.parameters)
+                        writer.Write(item.relicId +"\t");
+                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_IDs.txt"))
+                    foreach (var item in upgradebank.parameters)
+                        writer.Write(item.upgradeId +"\t");
+                
 
             }
         }
