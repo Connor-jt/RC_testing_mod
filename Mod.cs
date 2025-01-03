@@ -394,7 +394,7 @@ namespace TestMod{
                 
                 using (StreamWriter writer = new StreamWriter(export_folder + "entity_roles.txt")){
                     foreach (var item in test.parameters){
-                        writer.Write(item.entityId.ToLower() + "\t" + item.roles + "\0");
+                        writer.Write(item.entityId.ToLower() + "\t" + (int)item.roles + "\0");
                     }
                 }
 
