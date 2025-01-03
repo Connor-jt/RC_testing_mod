@@ -18,6 +18,8 @@ using static Glossary;
 
 namespace TestMod{
     public class Moddy : MelonMod{
+        // load custom unit patch code stuff
+        /*
         public static List<string> entities_to_localize = new List<string>();
         public static Dictionary<string, AssetBundle> mod_bundles = new Dictionary<string, AssetBundle>();
 
@@ -266,8 +268,10 @@ namespace TestMod{
                 return false;
 	        }
         }
-
+        */
         
+        // debug loaded card info code patch stuff
+        /*
         //[HarmonyPatch(typeof(Glossary), "SetupUnknownCardsCache")]
         //private static class debug1Patch{
         //    private static void Postfix(Glossary __instance){
@@ -292,77 +296,109 @@ namespace TestMod{
         //        Melon<Moddy>.Logger.Msg("logging  _unknownUpgradesCache: " + __instance._unknownUpgradesCache.Count);
         //    }
         //}
+        */
 
-        //const string export_folder = "C:\\Users\\Joe bingle\\Downloads\\RC modding\\exports\\";
-        //bool has_exported = false;
+        const string export_folder = "C:\\Users\\Joe bingle\\Downloads\\RC modding\\exports\\data\\";
         //public override void OnInitializeMelon()
         //{
         //}
-        //public override void OnGUI(){
-        //    if (has_exported) return;
-
-
-        //    long count = -1;
-        //    var test = EntityBalancingStore._entityBalancingScriptableObject;
-        //    if (test != null) count = test.parameters.Count;
+        public override void OnGUI(){
+            var test = EntityBalancingStore._entityBalancingScriptableObject;
+            if (test == null) GUILayout.Label($"test moddy NOT LOADED YET??");
             
-        //    // show unit count, if failed then dont bother showing any of the other UI
-        //    GUILayout.Label($"test moddy, cards: {count}");
-        //    if (test == null) return;
+            // show unit count
+            GUILayout.Label($"test moddy, cards: {test.parameters.Count}");
 
 
-        //    if (GUILayout.Button("unlock enemy units")){
-        //        List<EntityBalancingParameters> added_entities = new List<EntityBalancingParameters>();
-        //        foreach (var item in test.parameters){
-        //            // if entity is a building spawner, 
-        //            if ((item.roles & UnitRole.Factory)  != UnitRole.None 
-        //            &&  (item.roles & UnitRole.Building) != UnitRole.None
-        //            &&  (item.roles & UnitRole.PCXCard)  != UnitRole.None
-        //            &&  item.isAllowedForAi){
-        //                // then we duplicate the struct and make it a friendly card??
-        //                EntityBalancingParameters converted_unit = item;
+            if (GUILayout.Button("unlock enemy units")){
+                List<EntityBalancingParameters> added_entities = new List<EntityBalancingParameters>();
+                foreach (var item in test.parameters){
+                    // if entity is a building spawner, 
+                    if ((item.roles & UnitRole.Factory)  != UnitRole.None 
+                    &&  (item.roles & UnitRole.Building) != UnitRole.None
+                    &&  (item.roles & UnitRole.PCXCard)  != UnitRole.None
+                    &&  item.isAllowedForAi){
+                        // then we duplicate the struct and make it a friendly card??
+                        EntityBalancingParameters converted_unit = item;
 
-        //                converted_unit.roles &= ~UnitRole.PCXCard; // clear PCXCard role
-        //                converted_unit.isAllowedForAi = false;
-        //                converted_unit.isAllowedAsBlueprint = true;
+                        converted_unit.roles &= ~UnitRole.PCXCard; // clear PCXCard role
+                        converted_unit.isAllowedForAi = false;
+                        converted_unit.isAllowedAsBlueprint = true;
 
-        //                added_entities.Add(converted_unit);
-        //            }
-        //        }
-        //        // then loop back and add all the new units in
-        //        foreach (var item in added_entities)
-        //            test.parameters.Add(item);
-        //    }
+                        added_entities.Add(converted_unit);
+                    }
+                }
+                // then loop back and add all the new units in
+                foreach (var item in added_entities)
+                    test.parameters.Add(item);
+            }
 
-        //    if (GUILayout.Button("Export units")){
-        //        has_exported = true;
+            if (GUILayout.Button("Export unit json")){
 
-        //        JsonSerializer serializer = new JsonSerializer();
-        //        serializer.Converters.Add(new JavaScriptDateTimeConverter());
-        //        serializer.NullValueHandling = NullValueHandling.Ignore;
-        //        // Create the file.
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Converters.Add(new JavaScriptDateTimeConverter());
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                // Create the file.
 
-        //        using (StreamWriter sw = new StreamWriter(export_folder + "units.txt"))
-        //        using (JsonWriter writer = new JsonTextWriter(sw)){
+                using (StreamWriter sw = new StreamWriter(export_folder + "units.txt"))
+                using (JsonWriter writer = new JsonTextWriter(sw)){
 
-        //            writer.Formatting = Formatting.Indented;
-        //            //using (FileStream fs = File.Create(export_folder + "units.txt")){
-        //            int index = 0;
-        //            sw.Write("{");
-        //            foreach (var item in test.parameters){
-        //                if (index > 0) sw.Write(",");
-        //                sw.Write(" " + index + "\":\n");
-        //                //string serialized_unit = Newtonsoft.Json.JsonConvert.SerializeObject(item);
-        //                //fs.Write(Encoding.UTF8.GetBytes(serialized_unit), 0, serialized_unit.Length);
+                    writer.Formatting = Formatting.Indented;
+                    //using (FileStream fs = File.Create(export_folder + "units.txt")){
+                    int index = 0;
+                    sw.Write("{\n");
+                    foreach (var item in test.parameters){
+                        if (index > 0) sw.Write(",\n");
+                        sw.Write("\"" + index + "\": ");
+                        //string serialized_unit = Newtonsoft.Json.JsonConvert.SerializeObject(item);
+                        //fs.Write(Encoding.UTF8.GetBytes(serialized_unit), 0, serialized_unit.Length);
 
-        //                serializer.Serialize(writer, item);
-        //                index++;
-        //            }
-        //            sw.Write("\n}");
-        //        }
-        //        //}
+                        serializer.Serialize(writer, item);
+                        index++;
+                    }
+                    sw.Write("\n}");
+                }
+                //}
 
-        //    }
-        //}
+            }
+
+            
+            if (GUILayout.Button("Export ID lists")){
+                // export entity names and descriptions
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_name.txt")){
+                    foreach (var entry in Loca.BlueprintNameDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
+                }
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_desc.txt")){
+                    foreach (var entry in Loca.BlueprintDescriptionDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
+                }
+                // export relic names and descriptions
+                using (StreamWriter writer = new StreamWriter(export_folder + "relic_name.txt")){
+                    foreach (var entry in Loca.RelicNameDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
+                }
+                using (StreamWriter writer = new StreamWriter(export_folder + "relic_desc.txt")){
+                    foreach (var entry in Loca.RelicDescriptionDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
+                }
+                // export upgrade names and descriptions
+                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_name.txt")){
+                    foreach (var entry in Loca.UpgradeNameDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
+                }
+                using (StreamWriter writer = new StreamWriter(export_folder + "upgrade_desc.txt")){
+                    foreach (var entry in Loca.UpgradeDescriptionDictionary["en-US"])
+                        writer.Write(entry.Key + "\t" + entry.Value + "\0");
+                }
+                
+                using (StreamWriter writer = new StreamWriter(export_folder + "entity_roles.txt")){
+                    foreach (var item in test.parameters){
+                        writer.Write(item.entityId.ToLower() + "\t" + item.roles + "\0");
+                    }
+                }
+
+            }
+        }
     }
 }
