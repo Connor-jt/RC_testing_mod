@@ -311,6 +311,9 @@ namespace TestMod{
 
             var upgradebank = UpgradeBalancingStore._upgradeBalancingScriptableObject;
             if (upgradebank == null) GUILayout.Label("test moddy: no upgrade bank??");
+
+            var levelbank = GameBalancingStore._gameBalancingScriptableObject.levelProgressionParameters;
+            if (levelbank == null) GUILayout.Label("test moddy: no level bank??");
             
             // show unit count
             GUILayout.Label($"test moddy, cards: {entitybank.parameters.Count}");
@@ -410,6 +413,19 @@ namespace TestMod{
                     foreach (var item in upgradebank.parameters)
                         writer.Write(item.upgradeId +"\t");
                 
+                // export all AI types
+                using (StreamWriter writer = new StreamWriter(export_folder + "enemy_decks.txt"))
+                    foreach (var item in levelbank.defaultAis)
+                        writer.Write(item.name +"\t");
+                // export all landscape generators
+                using (StreamWriter writer = new StreamWriter(export_folder + "landscapes.txt"))
+                    foreach (var item in levelbank.defaultLandscapeGenerators)
+                        writer.Write(item.name +"\t");
+                // export all world types
+                using (StreamWriter writer = new StreamWriter(export_folder + "worlds.txt"))
+                    foreach (var item in levelbank.defaultWorlds)
+                        writer.Write(item.name +"\t");
+
 
             }
         }
