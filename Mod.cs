@@ -371,33 +371,40 @@ namespace TestMod{
 
             }
             if (GUILayout.Button("Export hack json")){
-
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Converters.Add(new JavaScriptDateTimeConverter());
                 serializer.NullValueHandling = NullValueHandling.Ignore;
-                // Create the file.
-
                 using (StreamWriter sw = new StreamWriter(export_folder + "hacks.json"))
                 using (JsonWriter writer = new JsonTextWriter(sw)){
-
                     writer.Formatting = Formatting.Indented;
-                    //using (FileStream fs = File.Create(export_folder + "units.txt")){
                     int index = 0;
                     sw.Write("{\n");
                     foreach (var item in relicbank.parameters){
                         if (index > 0) sw.Write(",\n");
                         sw.Write("\"" + index + "\": ");
-                        //string serialized_unit = Newtonsoft.Json.JsonConvert.SerializeObject(item);
-                        //fs.Write(Encoding.UTF8.GetBytes(serialized_unit), 0, serialized_unit.Length);
-
                         serializer.Serialize(writer, item);
                         index++;
                     }
                     sw.Write("\n}");
-                }
-                //}
+            }}
+            if (GUILayout.Button("Export ugrades json")){
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Converters.Add(new JavaScriptDateTimeConverter());
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                using (StreamWriter sw = new StreamWriter(export_folder + "hacks.json"))
+                using (JsonWriter writer = new JsonTextWriter(sw)){
 
-            }
+                    writer.Formatting = Formatting.Indented;
+                    int index = 0;
+                    sw.Write("{\n");
+                    foreach (var item in upgradebank.parameters){
+                        if (index > 0) sw.Write(",\n");
+                        sw.Write("\"" + index + "\": ");
+                        serializer.Serialize(writer, item);
+                        index++;
+                    }
+                    sw.Write("\n}");
+            }}
 
             
             if (GUILayout.Button("Export ID lists")){
