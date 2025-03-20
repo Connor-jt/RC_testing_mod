@@ -298,7 +298,7 @@ namespace TestMod{
         //}
         */
 
-        const string export_folder = "D:\\Projects\\UNASSORTED\\RC modding\\exports\\data";
+        const string export_folder = "D:\\Projects\\UNASSORTED\\RC modding\\exports\\data\\";
         //public override void OnInitializeMelon()
         //{
         //}
